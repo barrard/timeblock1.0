@@ -1,0 +1,116 @@
+#metaMask *{
+  display: inline;
+}
+
+#header_section_list li{
+  list-style: none;
+  display: inline-flex;
+  margin: auto;
+
+
+}
+
+.inline{
+  display: inline-block;
+}
+ .space{
+  margin: 5px;
+  padding:5px;
+ }
+
+#header_section_list span{
+  /*background: white;*/
+  /*padding: 10px;*/
+  margin: 25px;
+  padding: 2px;
+  box-shadow: inset 0 0 0 2px goldenrod;
+}
+
+#header_section_list li p{
+  list-style: none;
+  /*background: green;*/
+  display: inline;
+
+  border: 1px solid black;
+}
+
+body{
+  /*background-color: red;*/
+}
+
+#currentBalance{
+  position: relative;
+  box-shadow:
+    0px 2px 0px 0px hsl(122, 73%, 47%),
+    0px 4px 0px 0px hsl(0, 100%, 100%),
+    0px 5px 0px 0px hsl(0, 0%, 80%)
+    /*0px 0px 0px 15px hsl(0, 0%, 90%);*/
+  /*border-bottom:solid 2px green, solid 2px red;*/
+  /*text-decoration-color: green;*/
+}
+
+#currentBalance:hover:after{
+  position: absolute;
+  top: -2.5em;
+  left: -1.5em;
+  content: 'Current Ballance';
+  border-radius: 3px;
+  border: 1px solid goldenrod;
+  background: white;
+}
+
+#loader {
+  position: absolute;
+    width: 100px;
+    display:none;
+}
+
+.clock-out{
+  color: indianred;
+  background: rgb(222, 222, 222);
+
+}
+.clock-in{
+  color: lawngreen;
+  background: rgb(111, 111, 111);
+}
+
+.transactionListing .address  {
+  color: blueviolet;
+}
+
+.transactionListing .to  {
+  color: brown;
+}
+
+.transactionListing .from  {
+  color: burlywood;
+}
+
+.transactionListing .value  {
+  color: indianred;
+}
+
+.transactionListing .BlockHash  {
+  color: indigo;
+}
+
+.transactionListing .BlockNumber  {
+  color: darkgoldenrod;
+}
+
+.transactionListing .logIndex  {
+  color: cadetblue;
+}
+.transactionListing .logIndex  {
+  color: chocolate;
+}
+.transactionListing .transactionIndex  {
+  color: coral;
+}
+.transactionListing .removed  {
+  color: cornflowerblue;
+}
+.transactionListing .transactionHash  {
+  color: crimson;
+}

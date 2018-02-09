@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Pete's Pet Shop</title>
+
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/css.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+
+    <div style="display: none;" id="metaMask">
+      <a href="https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn?hl=en">
+        <img height='40px'src="https://lh3.googleusercontent.com/0j7Ij02PtXsqEpjrNFPy9Q_a50SUNeO-FQUntjaFIK0r-Cxp81S4Op2cSQfIK26K6s32L7s4=w26-h26-e365" alt="metaMaskLogo">
+        <h2>This website requires Metamask to be installed</h2>
+      </a>
+    </div>
+    <section id='header_section'>
+      <!-- nav data -->
+      <ul id='header_section_list'>
+        <li>
+          <p>connected peers <span id="peerCount"></span></p>
+        </li>
+        <li>
+          <p>web3 API version <span id="web3APIVersion"></span></p>
+        </li>
+        <li>
+          <p>web3 Network protocol <span id="web3versionNetwork"></span></p>
+        </li>
+        <li>
+          <p>web3 Ethereum Protocol <span id="web3EthereumVersion"></span></p>
+        </li>
+        <li>
+          <p>web3 Connection Status <span id="web3ConnectionStatus"></span></p>
+        </li>
+        <li>
+          <p>web3 listeing for netowrk connections <span id="webisListening"></span></p>
+        </li>
+        <li>
+          <p>Current Block <span id="currentBlockID"></span></p>
+        </li>
+        <li>
+          <p>time since last block <span id="timeSinceLastBlock"></span></p>
+        </li>
+        <li>
+          Ether functions
+          <select id="ethFunctions"></select>
+        </li>
+        
+      </ul>
+
+    </section>
+<p>
+    your current account is:  <span id="ethAccountID"></span>
+  </p>
+  <p>Your Balance is Ξ<span id="currentBalance"></span> Ether</p>
+    <h1>Time Block<img id="loader" src="https://loading.io/spinners/double-ring/lg.double-ring-spinner.gif"></h1>
+  <input
+    id='employee_name_input'
+    type="text"
+    name="add_emplyee"
+    placeholder="add employee"
+  />
+  <button id="add_employee_btn">Add employee</button>
+<br><hr>
+<div>
+  <div class='inline space'>
+    employee list - select employee to see time stamps
+    <ul id='employee_list'></ul>
+  </div>
+  <div class='inline space'>
+    Time stamps for <span id='current_selected_employee'></span>
+    <ul id="time_stamps_for_current_selected_employee">
+    </ul>
+  </div>
+</div>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
+    <!-- <script src="js/web3.min.js"></script> -->
+    <script src="js/web3.js"></script>
+    <script src="js/truffle-contract.js"></script>
+    <!-- <script src="js/app.js"></script> -->
+    <script src="js/app2.js"></script>
+    <!-- <script src="js/app3.js"></script> -->
+  </body>
+</html>
