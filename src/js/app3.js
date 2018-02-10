@@ -206,6 +206,11 @@ App = {
     "inputs": [
       {
         "indexed": false,
+        "name": "_id",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
         "name": "_from",
         "type": "address"
       },
@@ -225,7 +230,7 @@ App = {
   }
 ])
 
-      App.timeclock = timeclockContract.at("0x700399e21ecfe395215db4f419ed8375d096dda0")
+      App.timeclock = timeclockContract.at("0x9b77083f0fcee81e3c0f7c3ea421dff76fe07fbf")
 App.list_all_employees()
 return App.setUI()
 
@@ -258,7 +263,8 @@ return App.setUI()
         var _isClockedIn = _employee[2]
         var _timesStamp_array = _employee[3]
         // console.log({_id, _name, _isClockedIn, _timesStamp_array})
-        callback( {_id, _name, _isClockedIn, _timesStamp_array})      }else{return e}
+        callback( {_id, _name, _isClockedIn, _timesStamp_array})      
+      }else{return e}
     })
   },
   add_employee_to_list:function(employee){
@@ -267,17 +273,16 @@ return App.setUI()
      var _name = App.hex2a(e._name)
      var _id = e._id
      var _isClockedIn = e._isClockedIn
+     var clock_in_class;
      // var emp = _name.slice(2)
      // emp = emp.slice(0, emp.indexOf(0))
      // emp = App.hex2a(emp)
+     if(_isClockedIn){clock_in_class = "clock_out_btn"}
+      else{clock_in_class = "clock_in_btn"}
      $('#employee_list').append(`
        <li onclick=App.get_time_stamps_for_name("${_name}")>${_name}</li>
-    ‘   ${_isClockedIn ?
-         `<button onclick=App.clock_out("${_id}")>Clock out</button>`
-       :
-        `<button onclick=App.clock_in("${_id}")>Clock in</button>`
-         }
-     `)
+        <button class="${clock_in_class}" data-id=${_id} onclick=App.clock_in_out(event)></button>
+         `)
 
 
   },
@@ -291,42 +296,40 @@ return App.setUI()
       console.log(e)
     })
   },
+  clock_in_out:function(e){
+    var _is_clocked_in = e.target.classList.contains('clock_out_btn')
+    var _id = e.target.getAttribute('data-id')
+    var _class = e.target.classList
+    if(_is_clocked_in){
+      console.log('clock out!')
+      App.clock_out(_id)
+      e.target.classList.replace('clock_out_btn', 'clock_in_btn')
+    }else{
+      console.log('clock in!')
+      App.clock_in(_id)
+      e.target.classList.replace('clock_in_btn', 'clock_out_btn')
+    }
+
+  },
   clock_in:function(_id){
     App.timeclock.clock_in(_id, {from:App.account, gas: "2000000"}, function(e,r) {
       if(!e){
-      var time_stamp_data = r
-      console.log(time_stamp_data)
-      var logs = time_stamp_data.logs[0]
-      var _from = logs.args._from
-      var _name = logs.args._name
-      var _time = logs.args._time.toNumber()
-      console.log({_from, _name, _time})
-      var time_stamp_list = $('#time_stamps_for_current_selected_employee')
-      color = 'class=clock-in'
-      time_stamp_list.append(`<li ${color}>${new Date(_time)}</li>`)
-    }else{
-      console.log('error....')
-      console.log(e)
+        console.log('Clock in')
+      }else{
+        console.log('error....')
+        console.log(e)
     }
   })
 
   },
-  clock_out:function(_name){
-    App.contracts.TimeClock.deployed().then(function(instance) {
-      return instance.clock_out(_name, {from:App.account, gasPrice: "20000000000"});
-    }).then(function(time_stamp_data){
-      console.log(time_stamp_data)
-      var logs = time_stamp_data.logs[0]
-      var _from = logs.args._from
-      var _name = logs.args._name
-      var _time = logs.args._time.toNumber()
-      console.log({_from, _name, _time})
-      var time_stamp_list = $('#time_stamps_for_current_selected_employee')
-      color = 'class=clock-out'
-      time_stamp_list.append(`<li ${color}>${new Date(_time)}</li>`)
-    }).catch(function(e){
-      console.log('error....')
-      console.log(e)
+  clock_out:function(_id){
+    App.timeclock.clock_out(_id, {from:App.account, gas: "200000"}, function(e, r){
+      if(!e){
+        console.log('Clock out')
+      }else{
+        console.log('error....')
+        console.log(e)
+      }
     })
 
 
@@ -363,7 +366,21 @@ return App.setUI()
       gasPrice:"2000000"
     }, function(e, r){
       console.log(e)
-      console.log(r)
+      App.call_when_mined(r, function(){console.log('has been mined!!! '+r)})
+    })
+  },
+  call_when_mined:function(txHash, callback){
+    web3.eth.getTransactionReceipt(txHash, function(e, r){
+      if(e){console.log(e)}
+        else{
+          if(r==null){
+            setTimeout(function(){
+              App.call_when_mined(txHash, callback)
+            }, 500)
+          }else{
+            callback();
+          }
+        }
     })
   },
   a2hex:function(str) {
@@ -415,6 +432,16 @@ return App.setUI()
             console.log(r)
             console.log(App.hex2a(r.args._name))
             console.log('clock_in_event')
+            var time_stamp_data = r
+            console.log(time_stamp_data)
+            var args = time_stamp_data.args
+            var _from = args._from
+            var _name = args._name
+            var _time = args._time.toNumber()
+            console.log({_from, _name, _time})
+            var time_stamp_list = $('#time_stamps_for_current_selected_employee')
+            color = 'class=clock-in'
+            time_stamp_list.append(`<li ${color}>${new Date(_time)}</li>`)
           }else{
             console.log('clock_in_event error')
           }
@@ -429,6 +456,16 @@ return App.setUI()
             console.log(r)
             console.log(App.hex2a(r.args._name))
             console.log('clock_out_event')
+            var time_stamp_data = r
+            console.log(time_stamp_data)
+            var args = time_stamp_data.args
+            var _from = args._from
+            var _name = args._name
+            var _time = args._time.toNumber()
+            console.log({_from, _name, _time})
+            var time_stamp_list = $('#time_stamps_for_current_selected_employee')
+            color = 'class=clock-out'
+            time_stamp_list.append(`<li ${color}>${new Date(_time)}</li>`)
           }else{
             console.log('clock_out_event error')
           }

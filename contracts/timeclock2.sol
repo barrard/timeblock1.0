@@ -8,6 +8,7 @@ contract TimeClock{
 
     //TODO ADD EVENTS
     event employee_added_event( 
+        uint _id,
         address _from,
         string _name,
         uint _time
@@ -63,7 +64,7 @@ contract TimeClock{
         _employee.name = _name;
         _employee.clocked_in = false;
         employee_count++;
-        employee_added_event(msg.sender, _name, now);
+        employee_added_event(_employee.id, msg.sender, _name, now);
         return employee_count;
     }
     

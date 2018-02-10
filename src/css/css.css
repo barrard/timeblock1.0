@@ -75,6 +75,20 @@ body{
   background: rgb(111, 111, 111);
 }
 
+.clock_out_btn{
+  background: indianred;
+
+  }
+  .clock_out_btn:before{
+    content: 'Clock out';
+  }
+.clock_in_btn{
+  background: lawngreen;
+}
+.clock_in_btn:before{
+  content: 'Clock in';
+}
+
 .transactionListing .address  {
   color: blueviolet;
 }

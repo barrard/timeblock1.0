@@ -291,6 +291,17 @@ App = {
           })
       }, 1000)
     }
+    App.listen_to_events()
+  },
+  listen_to_events:function(){
+    // App.contracts.TimeClock.deployed().then(function(instance) {
+    //   return instance.employee_added_event()
+    // }).then(function(event){
+    //   console.log(event)
+
+    // }).catch(function(err){
+    //   console.log(err)
+    // })
   }
 };
 
