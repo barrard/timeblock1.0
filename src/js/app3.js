@@ -134,6 +134,33 @@ App = {
     "type": "function"
   },
   {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "_from",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "_id",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "_name",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "name": "_time",
+        "type": "uint256"
+      }
+    ],
+    "name": "clock_in_event",
+    "type": "event"
+  },
+  {
     "constant": false,
     "inputs": [
       {
@@ -146,6 +173,33 @@ App = {
     "payable": false,
     "stateMutability": "nonpayable",
     "type": "function"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "_from",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "_id",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "_name",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "name": "_time",
+        "type": "uint256"
+      }
+    ],
+    "name": "clock_out_event",
+    "type": "event"
   },
   {
     "anonymous": false,
@@ -171,17 +225,19 @@ App = {
   }
 ])
 
-      App.timeclock = timeclockContract.at("0x4e12e17f3b2ecec2e4ed4890383529b49c54c923")
-
+      App.timeclock = timeclockContract.at("0x700399e21ecfe395215db4f419ed8375d096dda0")
+App.list_all_employees()
 return App.setUI()
 
 
     
   },
   list_all_employees:function(){
-    App.timeclock.get_employee_count(function(e, r){
+    App.timeclock.get_employee_count.call(function(e, r){
       console.log(e)
-      console.log(r)
+      console.log(r.toNumber())
+      App.handle_employee_list(r.toNumber())
+
     })
 
   },
@@ -189,37 +245,41 @@ return App.setUI()
     console.log('handle listL')
     console.log(_count)
     for(let x = 0; x<_count;x++){
-      App.get_employee_by_id(x)
-      // var emp = emp_array[x].slice(2)
-      // emp = emp.slice(0, emp.indexOf(0))
-      // emp = App.hex2a(emp)
-      // $('#employee_list').append(`
-      //   <li onclick=App.get_time_stamps_for_name("${emp}")>${emp}</li>
-      //   <button onclick=App.clock_in("${emp}")>Clock in</button>
-      //   <button onclick=App.clock_out("${emp}")>Clock out</button>`)
+      let result = App.get_employee_by_id(x, function(result){
+        App.add_employee_to_list(result)
+      })
     }
   },
-  get_employee_by_id:function(_id){
-    App.contracts.TimeClock.deployed().then(function(instance) {
-      return instance.get_employee.call(_id);
-    }).then(function(_employee){
-      console.log(_employee)
-    }).catch(function(e){
-      console.log('error')
-      console.log(e)
+  get_employee_by_id:function(_id, callback){
+    App.timeclock.get_employee.call(_id, function(e, _employee){
+      if(!e){
+        var _id = _employee[0].toNumber();
+        var _name = _employee[1]
+        var _isClockedIn = _employee[2]
+        var _timesStamp_array = _employee[3]
+        // console.log({_id, _name, _isClockedIn, _timesStamp_array})
+        callback( {_id, _name, _isClockedIn, _timesStamp_array})      }else{return e}
     })
-
   },
-  add_employee_to_list:function(_name){
-    var emp = _name.slice(2)
-    emp = emp.slice(0, emp.indexOf(0))
-    emp = App.hex2a(emp)
-    $('#employee_list').append(`
-      <li onclick=App.get_time_stamps_for_name("${emp}")>${emp}</li>
-      <button onclick=App.clock_in("${emp}")>Clock in</button>
-      <button onclick=App.clock_out("${emp}")>Clock out</button>
+  add_employee_to_list:function(employee){
+    console.log(employee)
+     var e=employee
+     var _name = App.hex2a(e._name)
+     var _id = e._id
+     var _isClockedIn = e._isClockedIn
+     // var emp = _name.slice(2)
+     // emp = emp.slice(0, emp.indexOf(0))
+     // emp = App.hex2a(emp)
+     $('#employee_list').append(`
+       <li onclick=App.get_time_stamps_for_name("${_name}")>${_name}</li>
+    ‘   ${_isClockedIn ?
+         `<button onclick=App.clock_out("${_id}")>Clock out</button>`
+       :
+        `<button onclick=App.clock_in("${_id}")>Clock in</button>`
+         }
+     `)
 
-      `)
+
   },
   echo:function(_string){
     App.contracts.TimeClock.deployed().then(function(instance) {
@@ -231,10 +291,10 @@ return App.setUI()
       console.log(e)
     })
   },
-  clock_in:function(_name){
-    App.contracts.TimeClock.deployed().then(function(instance) {
-      return instance.clock_in(_name, {from:App.account, gasPrice: "20000000000"});
-    }).then(function(time_stamp_data){
+  clock_in:function(_id){
+    App.timeclock.clock_in(_id, {from:App.account, gas: "2000000"}, function(e,r) {
+      if(!e){
+      var time_stamp_data = r
       console.log(time_stamp_data)
       var logs = time_stamp_data.logs[0]
       var _from = logs.args._from
@@ -244,10 +304,11 @@ return App.setUI()
       var time_stamp_list = $('#time_stamps_for_current_selected_employee')
       color = 'class=clock-in'
       time_stamp_list.append(`<li ${color}>${new Date(_time)}</li>`)
-    }).catch(function(e){
+    }else{
       console.log('error....')
       console.log(e)
-    })
+    }
+  })
 
   },
   clock_out:function(_name){
@@ -296,9 +357,10 @@ return App.setUI()
   // },
   add_employee:function(_name){
     console.log('add '+_name)
-    App.timeclock.add_employee(_name, {
+    App.timeclock.add_employee(App.a2hex(_name), {
       from:App.account,
-      gasPrice:"116189000"
+      gas:"2000000",
+      gasPrice:"2000000"
     }, function(e, r){
       console.log(e)
       console.log(r)
@@ -330,18 +392,47 @@ return App.setUI()
 
 
     //Event watchers
-    var employee_added_event = App.timeclock.employee_added_event({}, {fromBlock:0, toBlock:'latest'})
+    var employee_added_event = App.timeclock.employee_added_event({}, {fromBlock:'latest', toBlock:'latest'})
     employee_added_event.watch(function(e, r){
         if(e){
           console.log('error')
           console.log(e)
         }else if (r){
           console.log(r)
+          console.log(App.hex2a(r.args._name))
           console.log('employee_added_event')
         }else{
           console.log('employee_added_event error')
         }
       })
+
+      var clock_in_event = App.timeclock.clock_in_event({}, {fromBlock:'latest', toBlock:'latest'})
+      clock_in_event.watch(function(e, r){
+          if(e){
+            console.log('error')
+            console.log(e)
+          }else if (r){
+            console.log(r)
+            console.log(App.hex2a(r.args._name))
+            console.log('clock_in_event')
+          }else{
+            console.log('clock_in_event error')
+          }
+        })
+
+      var clock_out_event = App.timeclock.clock_out_event({}, {fromBlock:'latest', toBlock:'latest'})
+      clock_out_event.watch(function(e, r){
+          if(e){
+            console.log('error')
+            console.log(e)
+          }else if (r){
+            console.log(r)
+            console.log(App.hex2a(r.args._name))
+            console.log('clock_out_event')
+          }else{
+            console.log('clock_out_event error')
+          }
+        })
 
     function handleBasicCallback(e, r, options){
       for (let k in options){

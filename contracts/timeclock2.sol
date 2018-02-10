@@ -12,6 +12,20 @@ contract TimeClock{
         string _name,
         uint _time
         );
+    event clock_in_event(
+        address _from,
+        uint _id,
+        string _name,
+        uint _time
+        );
+
+    event clock_out_event(
+        address _from,
+        uint _id,
+        string _name,
+        uint _time
+        );
+    
 
     
     
@@ -60,6 +74,7 @@ contract TimeClock{
         require(!_employee.clocked_in);
         _employee.clocked_in = true;
         _employee.time_stamps.push(now);
+        clock_in_event(msg.sender, _id, _name, now );
     }
     
     function clock_out(uint _id) public {
@@ -69,6 +84,8 @@ contract TimeClock{
         require(_employee.clocked_in);
         _employee.clocked_in = false;
         _employee.time_stamps.push(now);
+        clock_out_event(msg.sender, _id, _name, now );
+
     }
     
 

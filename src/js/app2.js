@@ -61,38 +61,52 @@ App = {
     console.log('handle listL')
     console.log(_count)
     for(let x = 0; x<_count;x++){
-      App.get_employee_by_id(x)
-      // var emp = emp_array[x].slice(2)
-      // emp = emp.slice(0, emp.indexOf(0))
-      // emp = App.hex2a(emp)
-      // $('#employee_list').append(`
-      //   <li onclick=App.get_time_stamps_for_name("${emp}")>${emp}</li>
-      //   <button onclick=App.clock_in("${emp}")>Clock in</button>
-      //   <button onclick=App.clock_out("${emp}")>Clock out</button>`)
+      let result = App.get_employee_by_id(x, function(result){
+        console.log(result)
+        App.add_employee_to_list(result)
+        // var emp = result._name
+        // $('#employee_list').append(`
+        //   <li onclick=App.get_time_stamps_for_name("${emp}")>${emp}</li>
+        //   <button onclick=App.clock_in("${emp}")>Clock in</button>
+        //   <button onclick=App.clock_out("${emp}")>Clock out</button>`)        
+      })
+
     }
   },
-  get_employee_by_id:function(_id){
+  get_employee_by_id:function(_id, callback){
     App.contracts.TimeClock.deployed().then(function(instance) {
       return instance.get_employee.call(_id);
     }).then(function(_employee){
-      console.log(_employee)
+      var _id = _employee[0].toNumber();
+      var _name = _employee[1]
+      var _isClockedIn = _employee[2]
+      var _timesStamp_array = _employee[3]
+      // console.log({_id, _name, _isClockedIn, _timesStamp_array})
+      callback( {_id, _name, _isClockedIn, _timesStamp_array})
+      // console.log(_employee)
     }).catch(function(e){
       console.log('error')
       console.log(e)
     })
 
   },
-  add_employee_to_list:function(_name){
+  add_employee_to_list:function(employee){
+    var e=employee
+    var _name = e._name
+    var _id = e._id
+    var _isClockedIn = e._isClockedIn
     console.log(_name)
-    var emp = _name.slice(2)
-    emp = emp.slice(0, emp.indexOf(0))
-    emp = App.hex2a(emp)
+    // var emp = _name.slice(2)
+    // emp = emp.slice(0, emp.indexOf(0))
+    // emp = App.hex2a(emp)
     $('#employee_list').append(`
-      <li onclick=App.get_time_stamps_for_name("${emp}")>${emp}</li>
-      <button onclick=App.clock_in("${emp}")>Clock in</button>
-      <button onclick=App.clock_out("${emp}")>Clock out</button>
-
-      `)
+      <li onclick=App.get_time_stamps_for_name("${_name}")>${_name}</li>
+   ‘   ${_isClockedIn ?
+        `<button onclick=App.clock_out("${_id}")>Clock out</button>`
+      :
+       `<button onclick=App.clock_in("${_id}")>Clock in</button>`
+        }
+    `)
   },
   echo:function(_string){
     App.contracts.TimeClock.deployed().then(function(instance) {
@@ -106,17 +120,18 @@ App = {
   },
   clock_in:function(_name){
     App.contracts.TimeClock.deployed().then(function(instance) {
-      return instance.clock_in(_name, {from:App.account, gasPrice: "20000000000"});
+      console.log(_name)
+      return instance.clock_in(_name, {from:App.account, gasPrice:2000000000, gas: "2000000"});
     }).then(function(time_stamp_data){
       console.log(time_stamp_data)
-      var logs = time_stamp_data.logs[0]
-      var _from = logs.args._from
-      var _name = logs.args._name
-      var _time = logs.args._time.toNumber()
-      console.log({_from, _name, _time})
-      var time_stamp_list = $('#time_stamps_for_current_selected_employee')
-      color = 'class=clock-in'
-      time_stamp_list.append(`<li ${color}>${new Date(_time)}</li>`)
+      // var logs = time_stamp_data.logs[0]
+      // var _from = logs.args._from
+      // var _name = logs.args._name
+      // var _time = logs.args._time.toNumber()
+      // console.log({_from, _name, _time})
+      // var time_stamp_list = $('#time_stamps_for_current_selected_employee')
+      // color = 'class=clock-in'
+      // time_stamp_list.append(`<li ${color}>${new Date(_time)}</li>`)
     }).catch(function(e){
       console.log('error....')
       console.log(e)
@@ -178,7 +193,7 @@ App = {
       // return inst.add_employee.call(_name);
     // }).then(function(result){
       // console.log(result)
-      return inst.add_employee(_name, {from:App.account,gasPrice: "200000"})
+      return inst.add_employee(_name, {from:App.account, gas:"2000000", gasPrice: "200000000"})
     }).then(function(result){
       console.log(result)
       // var logs = result.logs[0]
