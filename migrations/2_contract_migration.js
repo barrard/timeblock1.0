@@ -1,7 +1,7 @@
-var TimeClock = artifacts.require("./TimeClock2.sol");
+var TimeClo = artifacts.require("./timeclock.sol");
 
 module.exports = function(deployer, network, account) {
   // console.log(network)
   // console.log(account)
-  deployer.deploy(TimeClock);
+  deployer.deploy(TimeClo);
 };

@@ -1,6 +1,13 @@
+*{
+  box-sizing: border-box;
+  /*border: 1px solid red;*/
+
+}
+
 #metaMask *{
   display: inline;
 }
+
 
 #header_section_list li{
   list-style: none;
@@ -8,6 +15,9 @@
   margin: auto;
 
 
+}
+.half{
+  width:48%;
 }
 
 .inline{
@@ -63,6 +73,44 @@ body{
   position: absolute;
     width: 100px;
     display:none;
+}
+
+.employee_list_item{
+  background: rgb(222, 222, 222);
+  transition: all ease-in-out 0.2s;
+  margin:4px;
+  width:100%;
+  text-align: center;
+  list-style: none;
+  border-radius: 3px;
+}
+
+.clock_in_btn{
+  width: 100%;
+  border-radius: 3px;
+
+}
+
+.clock_out_btn{
+  width: 100%;
+  border-radius: 3px;
+
+}
+
+#employee_list{
+  position: absolute;
+  top: 0;
+}
+
+#time_stamps_for_current_selected_employee{
+  position: absolute;
+  top: 0;  
+}
+
+
+.employee_list_item:hover{
+  background: rgb(111, 111, 111);
+
 }
 
 .clock-out{
@@ -127,4 +175,8 @@ body{
 }
 .transactionListing .transactionHash  {
   color: crimson;
+}
+
+.relative{
+  position: relative;
 }

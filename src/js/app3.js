@@ -334,30 +334,30 @@ return App.setUI()
 
 
   },
-  // get_time_stamps_for_name:function(_name){
-  //   App.contracts.TimeClock.deployed().then(function(instance) {
-  //     return instance.get_time_stamps_for_name.call(_name);
-  //   }).then(function(time_stamp_array){
-  //     console.log(time_stamp_array)
-  //     var time_stamp_list = $('#time_stamps_for_current_selected_employee')
-  //     time_stamp_list.html('')
-  //     for(let x = 0 ; x < time_stamp_array.length ; x++){
-  //       var color;
-  //       if(x%2==0){color = 'class=clock-in'
-  //       }else{color = 'class=clock-out'
-  //       }
-  //       var time = time_stamp_array[x].toNumber() * 1000
-  //       time = new Date(time)
-  //       time_stamp_list.append(`<li ${color}>${time}</li>`)
+  get_time_stamps_for_name:function(_name){
+    App.contracts.TimeClock.deployed().then(function(instance) {
+      return instance.get_time_stamps_for_name.call(_name);
+    }).then(function(time_stamp_array){
+      console.log(time_stamp_array)
+      var time_stamp_list = $('#time_stamps_for_current_selected_employee')
+      time_stamp_list.html('')
+      for(let x = 0 ; x < time_stamp_array.length ; x++){
+        var color;
+        if(x%2==0){color = 'class=clock-in'
+        }else{color = 'class=clock-out'
+        }
+        var time = time_stamp_array[x].toNumber() * 1000
+        time = new Date(time)
+        time_stamp_list.append(`<li ${color}>${time}</li>`)
 
-  //       console.log()
-  //     }
+        console.log()
+      }
 
-  //   }).catch(function(e){
-  //     console.log('error....')
-  //     console.log(e)
-  //   })
-  // },
+    }).catch(function(e){
+      console.log('error....')
+      console.log(e)
+    })
+  },
   add_employee:function(_name){
     console.log('add '+_name)
     App.timeclock.add_employee(App.a2hex(_name), {

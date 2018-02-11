@@ -37,7 +37,7 @@ contract TimeClock{
         uint[] time_stamps;
     }
     
-    mapping(uint=>string) id_to_name;
+    mapping (uint => string) id_to_name;
     mapping (uint => Employee) Employees;
     mapping (string => bool) Employee_exists;
     

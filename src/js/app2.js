@@ -2,6 +2,7 @@ App = {
   web3Provider: null,
   contracts: {},
   account:'',
+  employee_array:[],
 
   init: function() {
     // Load pets.
@@ -33,7 +34,7 @@ App = {
   },
 
   initContract: function() {
-    $.getJSON('TimeClock2.json', function(data) {
+    $.getJSON('TimeClock.json', function(data) {
       // Get the necessary contract artifact file and instantiate it with truffle-contract
       App.contracts.TimeClock = TruffleContract(data);
       // Set the provider for our contract
@@ -95,18 +96,20 @@ App = {
     var _name = e._name
     var _id = e._id
     var _isClockedIn = e._isClockedIn
+    var _timesStamp_array = e._timesStamp_array
     console.log(_name)
-    // var emp = _name.slice(2)
-    // emp = emp.slice(0, emp.indexOf(0))
-    // emp = App.hex2a(emp)
-    $('#employee_list').append(`
-      <li onclick=App.get_time_stamps_for_name("${_name}")>${_name}</li>
-   ‘   ${_isClockedIn ?
-        `<button onclick=App.clock_out("${_id}")>Clock out</button>`
-      :
-       `<button onclick=App.clock_in("${_id}")>Clock in</button>`
-        }
-    `)
+    var clock_in_class;
+    var employee_object = {_id, _name, _isClockedIn, _timesStamp_array}
+    App.employee_array.push(employee_object)
+     // var emp = _name.slice(2)
+     // emp = emp.slice(0, emp.indexOf(0))
+     // emp = App.hex2a(emp)
+     if(_isClockedIn){clock_in_class = "clock_out_btn"}
+      else{clock_in_class = "clock_in_btn"}
+     $('#employee_list').append(`
+       <li class="employee_list_item"  data-id=${_id} onclick=App.get_time_stamps(event)>${_name}</li>
+        <button class="${clock_in_class}" data-id=${_id} onclick=App.clock_in_out(event)></button>
+         `)
   },
   echo:function(_string){
     App.contracts.TimeClock.deployed().then(function(instance) {
@@ -118,20 +121,37 @@ App = {
       console.log(e)
     })
   },
+  clock_in_out:function(e){
+    var _is_clocked_in = e.target.classList.contains('clock_out_btn')
+    var _id = e.target.getAttribute('data-id')
+    var _class = e.target.classList
+    if(_is_clocked_in){
+      console.log('clock out!')
+      App.clock_out(_id)
+      e.target.classList.replace('clock_out_btn', 'clock_in_btn')
+    }else{
+      console.log('clock in!')
+      App.clock_in(_id)
+      e.target.classList.replace('clock_in_btn', 'clock_out_btn')
+    }          
+    //using web3 bignimber do math to cast date as seconds since epoch
+    var new_date_obj = new web3.BigNumber(new Date()/1000)
+    console.log(new_date_obj)
+    App.employee_array[_id]._timesStamp_array.push(new_date_obj)
+
+  },
   clock_in:function(_name){
     App.contracts.TimeClock.deployed().then(function(instance) {
       console.log(_name)
-      return instance.clock_in(_name, {from:App.account, gasPrice:2000000000, gas: "2000000"});
+      return instance.clock_in(_name, {from:App.account, gas: "2000000"});
     }).then(function(time_stamp_data){
       console.log(time_stamp_data)
-      // var logs = time_stamp_data.logs[0]
-      // var _from = logs.args._from
-      // var _name = logs.args._name
-      // var _time = logs.args._time.toNumber()
-      // console.log({_from, _name, _time})
-      // var time_stamp_list = $('#time_stamps_for_current_selected_employee')
-      // color = 'class=clock-in'
-      // time_stamp_list.append(`<li ${color}>${new Date(_time)}</li>`)
+      var logs = time_stamp_data.logs[0]
+      var _from = logs.args._from
+      var _name = logs.args._name
+      var _time = logs.args._time.toNumber()
+      App.add_punch(true,_time)
+      console.log({_from, _name, _time})
     }).catch(function(e){
       console.log('error....')
       console.log(e)
@@ -140,7 +160,7 @@ App = {
   },
   clock_out:function(_name){
     App.contracts.TimeClock.deployed().then(function(instance) {
-      return instance.clock_out(_name, {from:App.account, gasPrice: "20000000000"});
+      return instance.clock_out(_name, {from:App.account, gas: "200000"});
     }).then(function(time_stamp_data){
       console.log(time_stamp_data)
       var logs = time_stamp_data.logs[0]
@@ -148,9 +168,7 @@ App = {
       var _name = logs.args._name
       var _time = logs.args._time.toNumber()
       console.log({_from, _name, _time})
-      var time_stamp_list = $('#time_stamps_for_current_selected_employee')
-      color = 'class=clock-out'
-      time_stamp_list.append(`<li ${color}>${new Date(_time)}</li>`)
+      App.add_punch(false,_time)
     }).catch(function(e){
       console.log('error....')
       console.log(e)
@@ -158,30 +176,49 @@ App = {
 
 
   },
-  // get_time_stamps_for_name:function(_name){
-  //   App.contracts.TimeClock.deployed().then(function(instance) {
-  //     return instance.get_time_stamps_for_name.call(_name);
-  //   }).then(function(time_stamp_array){
-  //     console.log(time_stamp_array)
-  //     var time_stamp_list = $('#time_stamps_for_current_selected_employee')
-  //     time_stamp_list.html('')
-  //     for(let x = 0 ; x < time_stamp_array.length ; x++){
-  //       var color;
-  //       if(x%2==0){color = 'class=clock-in'
-  //       }else{color = 'class=clock-out'
-  //       }
-  //       var time = time_stamp_array[x].toNumber() * 1000
-  //       time = new Date(time)
-  //       time_stamp_list.append(`<li ${color}>${time}</li>`)
+  //clock_in === true
+  add_punch:function(clock_in_out, _time){
+    if (clock_in_out) {
+      var time_stamp_list = $('#time_stamps_for_current_selected_employee')
+      var color = 'class=clock-in'
+      time_stamp_list.append(`<li ${color}>${new Date(_time*1000)}</li>`)
 
-  //       console.log()
-  //     }
 
-  //   }).catch(function(e){
-  //     console.log('error....')
-  //     console.log(e)
-  //   })
-  // },
+    }else{
+      var time_stamp_list = $('#time_stamps_for_current_selected_employee')
+      var color = 'class=clock-out'
+      time_stamp_list.append(`<li ${color}>${new Date(_time*1000)}</li>`)      
+    }
+
+  },
+    call_when_mined:function(txHash, callback){
+    web3.eth.getTransactionReceipt(txHash, function(e, r){
+      if(e){console.log(e)}
+        else{
+          if(r==null){
+            setTimeout(function(){
+              App.call_when_mined(txHash, callback)
+            }, 500)
+          }else{
+            callback();
+          }
+        }
+    })
+  },
+  get_time_stamps:function(e){
+    var _id = e.target.getAttribute("data-id")
+    var time_stamp_array = App.employee_array[_id]._timesStamp_array
+    var time_stamp_list = $('#time_stamps_for_current_selected_employee')
+    time_stamp_list.html('')
+    for(let x = 0 ; x < time_stamp_array.length ; x++){
+      var color;
+      if(x%2==0){color = 'class=clock-in'}
+      else{color = 'class=clock-out'}
+      var time = time_stamp_array[x].toNumber() * 1000
+      time = new Date(time)
+      time_stamp_list.append(`<li ${color}>${time}</li>`)
+    }   
+  },
   add_employee:function(_name){
     console.log(_name)
     var inst;
@@ -193,15 +230,18 @@ App = {
       // return inst.add_employee.call(_name);
     // }).then(function(result){
       // console.log(result)
-      return inst.add_employee(_name, {from:App.account, gas:"2000000", gasPrice: "200000000"})
+      return inst.add_employee(_name, {from:App.account, gas:"2000000", gasPrice: "20000"})
     }).then(function(result){
       console.log(result)
-      // var logs = result.logs[0]
-      // var _from = logs.args._from
-      // var _name = logs.args._name
-      // var _time = logs.args._time.toNumber()
-      // console.log({_from, _name, _time})
-      // App.add_employee_to_list(_name)
+      // App.call_when_mined(result.tx, function(){console.log('has been mined!!! '+result.tx)})
+
+      var logs = result.logs[0]
+      var _from = logs.args._from
+      var _id = logs.args._id.toNumber()
+      var _name = logs.args._name
+      var _timesStamp_array=[]
+      console.log({_from, _id, _name, _timesStamp_array})
+      App.add_employee_to_list({_from, _id, _name, _timesStamp_array})
     })
     .catch(function(e){
       console.log('error....')
@@ -295,10 +335,10 @@ App = {
   },
   listen_to_events:function(){
     // App.contracts.TimeClock.deployed().then(function(instance) {
-    //   return instance.employee_added_event()
-    // }).then(function(event){
-    //   console.log(event)
-
+    //    instance.employee_added_event().watch(function(e, r){
+    //     console.log(e)
+    //     console.log(r)
+    //    })
     // }).catch(function(err){
     //   console.log(err)
     // })
