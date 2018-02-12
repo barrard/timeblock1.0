@@ -34,7 +34,7 @@ App = {
   },
 
   initContract: function() {
-    $.getJSON('TimeClock.json', function(data) {
+    $.getJSON('tc.json', function(data) {
       // Get the necessary contract artifact file and instantiate it with truffle-contract
       App.contracts.TimeClock = TruffleContract(data);
       // Set the provider for our contract
@@ -107,8 +107,11 @@ App = {
      if(_isClockedIn){clock_in_class = "clock_out_btn"}
       else{clock_in_class = "clock_in_btn"}
      $('#employee_list').append(`
-       <li class="employee_list_item"  data-id=${_id} onclick=App.get_time_stamps(event)>${_name}</li>
+       <li class="employee_list_item"  data-id=${_id} onclick=App.get_time_stamps(event)>
+        ${_name}
         <button class="${clock_in_class}" data-id=${_id} onclick=App.clock_in_out(event)></button>
+      </li>
+        
          `)
   },
   echo:function(_string){
@@ -206,6 +209,7 @@ App = {
     })
   },
   get_time_stamps:function(e){
+    console.log(e.target)
     var _id = e.target.getAttribute("data-id")
     var time_stamp_array = App.employee_array[_id]._timesStamp_array
     var time_stamp_list = $('#time_stamps_for_current_selected_employee')
