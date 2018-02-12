@@ -76,30 +76,37 @@ body{
 }
 
 .employee_list_item{
+  display: inline-block;
   background: rgb(222, 222, 222);
   transition: all ease-in-out 0.2s;
   margin:4px;
-  width:100%;
+  width:70%;
   text-align: center;
   list-style: none;
   border-radius: 3px;
+  padding-top: 0.5em;
 }
 
 .clock_in_btn{
-  width: 100%;
+  padding: 5px;
+  width: 25%;
   border-radius: 3px;
 
 }
 
 .clock_out_btn{
-  width: 100%;
+  padding: 5px;
+  width: 25%;
   border-radius: 3px;
 
 }
 
 #employee_list{
+  margin-left: -2em;
   position: absolute;
   top: 0;
+  width:100%;
+  display: inline-block;
 }
 
 #time_stamps_for_current_selected_employee{

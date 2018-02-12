@@ -35,6 +35,7 @@ App = {
 
   initContract: function() {
     $.getJSON('tc.json', function(data) {
+    // $.getJSON('TimeClock.json', function(data) {
       // Get the necessary contract artifact file and instantiate it with truffle-contract
       App.contracts.TimeClock = TruffleContract(data);
       // Set the provider for our contract
@@ -107,10 +108,12 @@ App = {
      if(_isClockedIn){clock_in_class = "clock_out_btn"}
       else{clock_in_class = "clock_in_btn"}
      $('#employee_list').append(`
-       <li class="employee_list_item"  data-id=${_id} onclick=App.get_time_stamps(event)>
-        ${_name}
-        <button class="${clock_in_class}" data-id=${_id} onclick=App.clock_in_out(event)></button>
+       <li class="employee_list_item">
+        <p  data-id=${_id} onclick=App.get_time_stamps(event)>${_name}</p>
       </li>
+      <button class="${clock_in_class}" data-id=${_id} onclick=App.clock_in_out(event)></button>
+      <br>
+
         
          `)
   },
@@ -146,7 +149,7 @@ App = {
   clock_in:function(_name){
     App.contracts.TimeClock.deployed().then(function(instance) {
       console.log(_name)
-      return instance.clock_in(_name, {from:App.account, gas: "2000000"});
+      return instance.clock_in(_name, {from:App.account, gas: "2000000", gasPrice:"200000000000"});
     }).then(function(time_stamp_data){
       console.log(time_stamp_data)
       var logs = time_stamp_data.logs[0]
@@ -163,7 +166,7 @@ App = {
   },
   clock_out:function(_name){
     App.contracts.TimeClock.deployed().then(function(instance) {
-      return instance.clock_out(_name, {from:App.account, gas: "200000"});
+      return instance.clock_out(_name, {from:App.account, gas: "200000", gasPrice:"20000000000000"});
     }).then(function(time_stamp_data){
       console.log(time_stamp_data)
       var logs = time_stamp_data.logs[0]
@@ -234,7 +237,7 @@ App = {
       // return inst.add_employee.call(_name);
     // }).then(function(result){
       // console.log(result)
-      return inst.add_employee(_name, {from:App.account, gas:"2000000", gasPrice: "20000"})
+      return inst.add_employee(_name, {from:App.account, gas:"2000000", gasPrice: "200000000000"})
     }).then(function(result){
       console.log(result)
       // App.call_when_mined(result.tx, function(){console.log('has been mined!!! '+result.tx)})
@@ -295,6 +298,7 @@ App = {
     })
     web3.version.getNetwork(function(e, r){
       handleBasicCallback(e, r, {web3versionNetwork:r})
+      if(r!=4){alert("Use Rinkeby test network")}
     })
     web3.version.getEthereum(function(e, r){    //parse the returned hexedecimal
       handleBasicCallback(e, r, {web3EthereumVersion:parseInt(r, 16)})
